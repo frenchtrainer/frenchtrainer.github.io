@@ -1,0 +1,265 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+	<title></title>
+	<link rel="stylesheet" href="qunit.css" type="text/css" media="screen">
+</head>
+<style type="text/css">
+	@font-face {
+    font-family: "cute";
+    src: url("Blantick Script.ttf");
+}
+
+.counter{
+	font-family: cute;
+	color: rgb(254, 113, 255);
+	color: rgb(0, 0, 0);
+	white-space: nowrap;
+	font-size: 1.8em;
+}
+
+.wrapper{
+	z-index: 50;
+	position: absolute;
+	top: 3%;
+	left: 3%;
+	width: 17em;
+	background: rgba(255, 255, 255, 0.5);
+	border-radius: 25px;
+}
+
+.subwrapper{
+	position: relative;
+	z-index: 100;
+	margin: 8%;
+}
+
+img {  
+	z-index: 1;
+   user-drag: none;  
+   user-select: none;
+   -moz-user-select: none;
+   -webkit-user-drag: none;
+   -webkit-user-select: none;
+   -ms-user-select: none;
+    max-inline-size: 100%;
+ 	block-size: auto;
+    object-fit: cover;
+    bottom: 0;
+    position: fixed;
+}
+
+.veil{
+  z-index: 10;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  transition: all 0.5s;
+  background-color: rgba(255, 255, 255, 0.6)
+}
+
+.veil2{
+  z-index: 1000;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  user-drag: none;  
+  user-select: none;
+   -moz-user-select: none;
+   -webkit-user-drag: none;
+   -webkit-user-select: none;
+   -ms-user-select: none;
+  background-color: rgba(255, 0, 0, 0)
+}
+
+</style>
+<body style="margin:0;">
+	<img src="spiral.gif" id="img">
+	<!-- <img src="idle.jpg" id="img"> -->
+	<div id="veil" class="veil"></div>
+
+	<!-- Block selection -->
+	<div id="veil2" class="veil2"></div>
+
+	<!-- UI -->
+	<div class="wrapper">
+		<div class="subwrapper">
+			<div class="counter">Points: <span id="count">0 (x1)</span></div>
+			<div class="counter">Max duration: <span id="max">0</span></div>
+			<div class="counter">Total duration: <span id="total">0</span></div>
+		</div>
+	</div>
+
+</body>
+<script type="text/javascript">
+function getSeconds() {
+  return new Date().getTime() / 1000;
+}
+
+function beep(pitch){
+  currSnd = bip.cloneNode()
+  currSnd.preservesPitch = false;
+  currSnd.mozPreservesPitch = false;
+  currSnd.playbackRate = pitch;
+  currSnd.play();
+}
+
+function formatSeconds(seconds){
+	if (seconds < 60)
+		return seconds.toFixed(2) + " s";
+	else if (seconds < 3600){
+		minutes = Math.floor(seconds / 60)
+		seconds = seconds - minutes * 60
+		return minutes + " m " + seconds.toFixed(2) + " s"
+	} else{
+		hours = Math.floor(seconds / 3600)
+		seconds = seconds - hours * 3600
+	minutes = Math.floor(seconds / 60)
+		seconds = seconds - minutes * 60
+		return hours + " h " + minutes + " m " + seconds.toFixed(2) + " s"	  
+	}
+}
+
+// Center image because CSS is hell
+const myImg = document.getElementById("img");
+myImg.onload = function() {
+	var height = myImg.height;
+	var screenHeight = window.screen.height;
+	var diff = (screenHeight - height) / 2
+	myImg.style.top = diff + "px";
+ }
+
+// Initial setup
+let timer;
+let milestone1;
+let milestone2;
+let milestone3;
+
+// Init
+let clicks = 0;
+let totalduration = 0; //seconds
+let maxduration = 0; //seconds
+var mult = 1;
+
+let startseconds;
+var lastClickEndSeconds;
+let falseDetection;
+
+// Load sound effects
+let bip = new Audio('bip.wav');
+let bigbip = new Audio('bigbip.wav');
+
+// Detect clicks on b
+const clickableZone = document.getElementById("veil2");
+const veil = document.getElementById("veil")
+
+
+function updateVeil(){
+  let rgba = window.getComputedStyle(veil).backgroundColor.match(/[\d.]+/g);
+  r = rgba[0];
+  g = rgba[1];
+  b = rgba[2];
+  a = 0.6 * (1 - (mult - 1)/9);//rgba[3];
+
+  veil.style.backgroundColor = `rgba(${ [r,g,b,a].join(',') })`;
+}
+
+
+function checkDuration() {
+  	var currSeconds = getSeconds();
+  	var elapsedSeconds = currSeconds - startSeconds;
+  	// TODO ?multTxt.innerHTML = mult;
+  
+  	// Check milestones
+  	if (!milestone1 && elapsedSeconds > 5){
+  		beep(0);
+   		beep(1);
+    	milestone1 = true;
+  	} else if (!milestone2 && elapsedSeconds > 10){
+    	beep(1);
+    	beep(2);
+    	milestone2 = true;
+  	} else if (!milestone3 && elapsedSeconds > 15){
+     	beep(2);
+      	beep(4);
+      	milestone3 = true;
+  	}
+}
+
+
+
+clickableZone.onpointerdown = function() {
+	// Reset milestones
+	milestone1 = false;
+	milestone2 = false;
+	milestone3 = false;
+
+	startSeconds = getSeconds();
+	var secondsSinceLast = startSeconds - lastClickEndSeconds;
+
+	falseDetection = false;
+	// Double click, reject
+	if (secondsSinceLast < 0.2){ // Put 0.2
+		falseDetection = true
+		return
+	}
+
+	// Handle multiplier
+	if (secondsSinceLast < 0.8) {
+		// Great!
+		// If last press was close enough: increase mult
+		mult = Math.min(mult + 1, 10)
+	} else if (secondsSinceLast < 1.6) {
+		// Didn't stop 
+	} else if (secondsSinceLast < 4) {
+		// Didn't stop, but too slow
+	mult = Math.max(mult - 2, 1)
+	} else if (secondsSinceLast > 5)
+		mult = 1;
+
+	// Update veil to reflect mult
+	updateVeil();
+
+	// Hold ?
+	timer = setInterval(checkDuration, 10);
+	startseconds = getSeconds();
+}
+
+clickableZone.onpointerup = function() {
+  	lastClickEndSeconds = getSeconds();
+
+  	if (falseDetection)
+		return
+
+	clearInterval(timer);
+
+	elapsedseconds = lastClickEndSeconds - startseconds;
+	totalduration += elapsedseconds;
+
+	if (elapsedseconds > maxduration){
+		maxduration = elapsedseconds;
+		// NEW PB 
+		// TODO SOUND
+		bigbip.cloneNode().play();
+	} else {
+		// Play audio
+		let pitch = 2**(mult / 12) - 0.4
+		beep(pitch)
+	}
+	clicks += 1;
+
+	// TODO POINTS VS CLICKS
+	// TODO SOUND FOR TARGET
+	// TODO NO PANNING IPHONE
+
+
+	document.getElementById("count").innerHTML = clicks + " (x" + mult + ")";
+	document.getElementById("total").innerHTML = formatSeconds(totalduration);
+	document.getElementById("max").innerHTML = formatSeconds(maxduration);
+}
+</script>
+</html>
