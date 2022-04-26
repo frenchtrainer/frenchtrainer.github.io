@@ -117,19 +117,6 @@ function formatSeconds(seconds){
 	}
 }
 
-// // Center image because CSS is hell
-// myImg = document.getElementById("img");
-// myImg.onload = centerImg()
-// window.addEventListener('resize', centerImg);
-
-// function centerImg() {
-// 	var height = 503;//myImg.height;
-// 	const screenHeight = window.innerHeight|| document.documentElement.clientHeight|| 
-// document.body.clientHeight;
-// 	var diff = (screenHeight - height) / 2
-// 	myImg.style.top = diff + "px";
-// }
-
 // Initial setup
 let timer;
 let milestone1;
@@ -176,21 +163,19 @@ function checkDuration() {
   
   	// Check milestones
   	if (!milestone1 && elapsedSeconds > 5){
-  		beep(0);
-   		beep(1);
     	milestone1 = true;
+    	beep(0);
+   		beep(1);
   	} else if (!milestone2 && elapsedSeconds > 10){
+  		milestone2 = true;
     	beep(1);
     	beep(2);
-    	milestone2 = true;
   	} else if (!milestone3 && elapsedSeconds > 15){
+  		milestone3 = true;
      	beep(2);
-      	beep(4);
-      	milestone3 = true;
+      beep(4);
   	}
 }
-
-
 
 downhandler = function(evt) {
 	// Reset milestones
@@ -225,8 +210,9 @@ downhandler = function(evt) {
 	updateVeil();
 
 	// Hold ?
-	timer = setInterval(checkDuration, 10);
+	timer = setInterval(checkDuration, 500);
 	startseconds = getSeconds();
+
 	evt.preventDefault();
 }
 //clickableZone.onpointerdown = downhandler;
@@ -234,9 +220,9 @@ clickableZone.addEventListener('mousedown', downhandler);
 clickableZone.addEventListener('touchstart', downhandler);
 
 uphandler = function(evt) {
-  	lastClickEndSeconds = getSeconds();
+	lastClickEndSeconds = getSeconds();
 
-  	if (falseDetection)
+	if (falseDetection)
 		return
 
 	clearInterval(timer);
@@ -254,11 +240,6 @@ uphandler = function(evt) {
 		beep(mult)
 	}
 	clicks += 1;
-
-	// TODO POINTS VS CLICKS
-	// TODO SOUND FOR TARGET
-	// TODO NO PANNING IPHONE
-
 
 	document.getElementById("count").innerHTML = clicks + " (x" + mult + ")";
 	document.getElementById("total").innerHTML = formatSeconds(totalduration);
