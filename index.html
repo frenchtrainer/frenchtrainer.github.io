@@ -229,7 +229,9 @@ downhandler = function(evt) {
 	startseconds = getSeconds();
 	evt.preventDefault();
 }
-clickableZone.onpointerdown = downhandler;
+//clickableZone.onpointerdown = downhandler;
+clickableZone.addEventListener('mousedown', downhandler);
+clickableZone.addEventListener('touchstart', downhandler);
 
 uphandler = function(evt) {
   	lastClickEndSeconds = getSeconds();
@@ -263,7 +265,8 @@ uphandler = function(evt) {
 	document.getElementById("max").innerHTML = formatSeconds(maxduration);
 	evt.preventDefault();
 }
-clickableZone.onpointerup = uphandler;
+clickableZone.addEventListener('mouseup', uphandler);
+clickableZone.addEventListener('touchend', uphandler);
 
 </script>
 </html>
