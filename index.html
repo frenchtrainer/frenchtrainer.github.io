@@ -37,6 +37,7 @@
 }
 
 .img-container{
+	min-width: 100%;
 	position: relative;
 	overflow: hidden;
 	display: table;
@@ -74,7 +75,8 @@ body{
 </style>
 <body>
 	<div class="img-container">
-		<img src="idle.jpg" width="100%"></img>
+		<!-- <img src="idle.jpg" width="100%"></img> -->
+		<img src="spiral4.gif" width="100%"></img>
 		<div id="veil" class="layer veil"></div>
 			<!-- Block selection -->
 		<div id="veil2" class="layer veil2"></div>
@@ -95,10 +97,7 @@ function getSeconds() {
 }
 
 function beep(pitch){
-  currSnd = bip.cloneNode()
-  currSnd.preservesPitch = false;
-  currSnd.mozPreservesPitch = false;
-  currSnd.playbackRate = pitch;
+  currSnd = bips[pitch - 1].cloneNode()
   currSnd.play();
 }
 
@@ -148,7 +147,10 @@ var lastClickEndSeconds;
 let falseDetection;
 
 // Load sound effects
-let bip = new Audio('bip.wav');
+let bips = [];
+for (let i = 1; i <= 10; i++) {
+  bips.push(new Audio("bip" + i + ".wav"))
+}
 let bigbip = new Audio('bigbip.wav');
 
 // Detect clicks on b
@@ -247,8 +249,7 @@ uphandler = function(evt) {
 		bigbip.cloneNode().play();
 	} else {
 		// Play audio
-		let pitch = 2**(mult / 12)
-		beep(pitch)
+		beep(mult)
 	}
 	clicks += 1;
 
