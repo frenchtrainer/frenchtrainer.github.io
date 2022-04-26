@@ -190,7 +190,7 @@ function checkDuration() {
 
 
 
-clickableZone.onpointerdown = function() {
+downhandler = function(evt) {
 	// Reset milestones
 	milestone1 = false;
 	milestone2 = false;
@@ -225,9 +225,11 @@ clickableZone.onpointerdown = function() {
 	// Hold ?
 	timer = setInterval(checkDuration, 10);
 	startseconds = getSeconds();
+	evt.preventDefault();
 }
+clickableZone.onpointerdown = downhandler;
 
-clickableZone.onpointerup = function() {
+uphandler = function(evt) {
   	lastClickEndSeconds = getSeconds();
 
   	if (falseDetection)
@@ -245,7 +247,7 @@ clickableZone.onpointerup = function() {
 		bigbip.cloneNode().play();
 	} else {
 		// Play audio
-		let pitch = 2**(mult / 12) - 0.4
+		let pitch = 2**(mult / 12)
 		beep(pitch)
 	}
 	clicks += 1;
@@ -258,6 +260,9 @@ clickableZone.onpointerup = function() {
 	document.getElementById("count").innerHTML = clicks + " (x" + mult + ")";
 	document.getElementById("total").innerHTML = formatSeconds(totalduration);
 	document.getElementById("max").innerHTML = formatSeconds(maxduration);
+	evt.preventDefault();
 }
+clickableZone.onpointerup = uphandler;
+
 </script>
 </html>
