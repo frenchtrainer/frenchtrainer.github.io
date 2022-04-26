@@ -6,7 +6,6 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 	<title></title>
-	<link rel="stylesheet" href="qunit.css" type="text/css" media="screen">
 </head>
 <style type="text/css">
 	@font-face {
@@ -23,10 +22,9 @@
 }
 
 .wrapper{
-	z-index: 50;
 	position: absolute;
-	top: 3%;
-	left: 3%;
+	top: 1.5em;
+	left: 1.5em;
 	width: 17em;
 	background: rgba(255, 255, 255, 0.5);
 	border-radius: 25px;
@@ -38,37 +36,27 @@
 	margin: 8%;
 }
 
-img {  
-	z-index: 1;
-   user-drag: none;  
-   user-select: none;
-   -moz-user-select: none;
-   -webkit-user-drag: none;
-   -webkit-user-select: none;
-   -ms-user-select: none;
-    max-inline-size: 100%;
- 	block-size: auto;
-    object-fit: cover;
-    bottom: 0;
-    position: fixed;
+.img-container{
+	position: relative;
+	overflow: hidden;
+	display: table;
+}
+
+.layer{
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 100%;
 }
 
 .veil{
-  z-index: 10;
-  position: absolute;
-  top: 0px;
-  width: 100%;
-  height: 100%;
+	top: 0;
   transition: all 0.5s;
   background-color: rgba(255, 255, 255, 0.6)
 }
 
 .veil2{
-  z-index: 1000;
-  position: absolute;
-  top: 0px;
-  width: 100%;
-  height: 100%;
+	top: 0;
   user-drag: none;  
   user-select: none;
    -moz-user-select: none;
@@ -78,24 +66,27 @@ img {
   background-color: rgba(255, 0, 0, 0)
 }
 
+body{
+	margin : 0;
+}
+
 </style>
-<body style="margin:0;">
-	<img src="spiral.gif" id="img">
-	<!-- <img src="idle.jpg" id="img"> -->
-	<div id="veil" class="veil"></div>
+<body>
+	<div class="img-container">
+		<img src="idle.jpg" width="100%"></img>
+		<div id="veil" class="layer veil"></div>
+			<!-- Block selection -->
+		<div id="veil2" class="layer veil2"></div>
 
-	<!-- Block selection -->
-	<div id="veil2" class="veil2"></div>
-
-	<!-- UI -->
-	<div class="wrapper">
-		<div class="subwrapper">
-			<div class="counter">Points: <span id="count">0 (x1)</span></div>
-			<div class="counter">Max duration: <span id="max">0</span></div>
-			<div class="counter">Total duration: <span id="total">0</span></div>
+		<!-- UI -->
+		<div class="wrapper">
+			<div class="subwrapper">
+				<div class="counter">Points: <span id="count">0 (x1)</span></div>
+				<div class="counter">Max duration: <span id="max">0</span></div>
+				<div class="counter">Total duration: <span id="total">0</span></div>
+			</div>
 		</div>
 	</div>
-
 </body>
 <script type="text/javascript">
 function getSeconds() {
@@ -126,14 +117,18 @@ function formatSeconds(seconds){
 	}
 }
 
-// Center image because CSS is hell
-const myImg = document.getElementById("img");
-myImg.onload = function() {
-	var height = myImg.height;
-	var screenHeight = window.screen.height;
-	var diff = (screenHeight - height) / 2
-	myImg.style.top = diff + "px";
- }
+// // Center image because CSS is hell
+// myImg = document.getElementById("img");
+// myImg.onload = centerImg()
+// window.addEventListener('resize', centerImg);
+
+// function centerImg() {
+// 	var height = 503;//myImg.height;
+// 	const screenHeight = window.innerHeight|| document.documentElement.clientHeight|| 
+// document.body.clientHeight;
+// 	var diff = (screenHeight - height) / 2
+// 	myImg.style.top = diff + "px";
+// }
 
 // Initial setup
 let timer;
